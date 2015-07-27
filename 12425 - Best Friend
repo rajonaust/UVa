@@ -1,0 +1,122 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    ALGORITHM : Number Theory
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+ll phi(ll x)
+{
+    ll res = x ;
+    for(ll i=2;i*i<=x;i++)
+    {
+        if(x%i==0)
+        {
+            res = res - res/i ;
+            while(x%i==0) x/=i;
+        }
+    }
+    if(x!=1) res = res - res/x ;
+    return res ;
+}
+
+bool cmp( pair<ll,ll>A , pair<ll,ll>B)
+{
+    return A.ff < B.ff ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    scanf("%d",&T);
+    for(int cas=1;cas<=T;cas++)
+    {
+        ll N , Q ;
+        scanf("%lld%lld",&N,&Q);
+        vector < pair<ll,ll> > V ;
+
+        for(ll i=1;i*i<=N;i++)
+        {
+            if(N%i==0)
+            {
+                V.pb(mp(i,phi(N/i)));
+                if(i*i!=N)V.pb(mp(N/i,phi(i)));
+            }
+        }
+
+        sort(V.begin(),V.end(),cmp);
+        for(int i=1;i<V.size();i++) V[i].ss = V[i].ss + V[i-1].ss ;
+
+        printf("Case %d\n",cas);
+        while( Q-- )
+        {
+            ll X ;
+            scanf("%lld",&X);
+
+            int mid = upper_bound(V.begin(),V.end(),pair<ll,ll>(X,0),cmp)-V.begin();
+            if(mid==0) puts("0");
+            else printf("%lld\n",V[mid-1].ss);
+        }
+    }
+    return 0;
+}
+/*
+3
+30006 3
+1
+87294323899
+783478434
+1000000000000 4
+1
+2
+-9000000
+9000000000000
+84398289202 6
+297498
+934242432
+10000238934
+-8888
+347647667
+0
+*/
+/*
+Case 1
+9996
+30006
+30006
+Case 2
+400000000000
+600000000000
+0
+1000000000000
+Case 3
+84398221824
+84398289142
+84398289200
+0
+84398289084
+0
+*/

@@ -1,0 +1,157 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 10807 - Prim ( UVa )
+    ALGORITHM : MST + Backtrack
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+struct Node
+{
+    int u , v , c ;
+    bool operator < (const Node &A) const
+    {
+        return c < A.c ;
+    }
+}V[30];
+int N , M , P[11] , ret ;
+int find(int x,int T[])
+{
+    if(T[x]==x) return x ;
+    return T[x] = find(T[x],T);
+}
+void dfs(int idx,int costA,int costB,int cntA,int cntB,int PA[],int PB[])
+{
+    if(cntA==N-1&&cntB==N-1)
+    {
+        if(ret==-1||ret>costA+costB) ret = costA+costB ;
+        return ;
+    }
+
+    if(idx==M) return ;
+    if(ret!=-1&&ret<costA+costB+(2*(N-1)-(cntA+cntB))*V[idx].c) return ;
+    if((2*(N-1)-(cntA+cntB))>M-idx) return ;
+
+    int tempA[11] , tempB[11] , tcostA , tcostB , tcntA , tcntB ;
+
+    copy(PA,PA+11,tempA);
+    copy(PB,PB+11,tempB);
+    tcostA = costA ; tcostB = costB ; tcntA = cntA ; tcntB = cntB ;
+
+    if(cntA!=N-1)
+    {
+        int x = find(V[idx].u,PA);
+        int y = find(V[idx].v,PA);
+        if(x!=y)
+        {
+            tempA[x] = y ;
+            tcostA+=V[idx].c;
+            tcntA++;
+            dfs(idx+1,tcostA,tcostB,tcntA,tcntB,tempA,tempB);
+        }
+    }
+
+    copy(PA,PA+11,tempA);
+    copy(PB,PB+11,tempB);
+    tcostA = costA ; tcostB = costB ; tcntA = cntA ; tcntB = cntB ;
+
+    if(cntB!=N-1)
+    {
+        int x = find(V[idx].u,PB);
+        int y = find(V[idx].v,PB);
+        if(x!=y)
+        {
+            tempB[x] = y ;
+            tcostB+=V[idx].c;
+            tcntB++;
+        }
+    }
+    dfs(idx+1,tcostA,tcostB,tcntA,tcntB,tempA,tempB);
+}
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    for(int i=1;i<=10;i++) P[i] = i ;
+    while( cin >> N && N!=0 )
+    {
+        cin >> M ;
+        for(int i=0;i<M;i++) scanf("%d%d%d",&V[i].u,&V[i].v,&V[i].c);
+
+        sort(V,V+M);
+        ret = -1 ;
+        dfs(0,0,0,0,0,P,P);
+
+        if(ret==-1) puts("No way!");
+        else cout << ret << endl ;
+    }
+    return 0;
+}
+/*
+2
+3
+1 2 10
+2 1 20
+1 2 30
+3
+3
+1 2 10
+1 2 20
+2 3 50
+5
+8
+1 2 10
+1 3 10
+1 4 10
+1 4 20
+1 5 20
+2 3 20
+3 4 20
+4 5 30
+7
+17
+4 2 421
+4 6 969
+5 6 419
+2 4 76
+1 7 642
+2 3 115
+2 7 648
+3 2 483
+4 2 17
+3 7 19
+4 1 727
+7 5 955
+3 2 128
+5 1 17
+5 4 677
+7 6 83
+7 3 280
+0
+*/
+/*
+30
+No way!
+140
+3200
+*/

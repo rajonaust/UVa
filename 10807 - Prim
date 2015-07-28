@@ -26,6 +26,7 @@ typedef unsigned long long ull ;
 /* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
 /* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
 /* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
 struct Node
 {
     int u , v , c ;
@@ -34,12 +35,15 @@ struct Node
         return c < A.c ;
     }
 }V[30];
+
 int N , M , P[11] , ret ;
+
 int find(int x,int T[])
 {
     if(T[x]==x) return x ;
     return T[x] = find(T[x],T);
 }
+
 void dfs(int idx,int costA,int costB,int cntA,int cntB,int PA[],int PB[])
 {
     if(cntA==N-1&&cntB==N-1)
@@ -88,6 +92,7 @@ void dfs(int idx,int costA,int costB,int cntA,int cntB,int PA[],int PB[])
     }
     dfs(idx+1,tcostA,tcostB,tcntA,tcntB,tempA,tempB);
 }
+
 int main()
 {
     //freopen("input.txt","r",stdin);
@@ -107,6 +112,7 @@ int main()
     }
     return 0;
 }
+
 /*
 2
 3

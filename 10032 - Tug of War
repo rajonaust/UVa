@@ -1,0 +1,75 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 10032 - Tug of War
+    ALGORITHM : Dynamic Programming
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int n , total , arr[100+10];
+ll dp[300000+10];
+
+void solve()
+{
+    total = accumulate(arr+1,arr+n+1,0);
+    memo(dp,0);
+    dp[0] = 1 ;
+
+    for(int i=1;i<=n;i++)
+    {
+        for(int j=total;j>=0;j--) if(dp[j]) dp[j+arr[i]]|=(dp[j]<<1) ;
+    }
+
+    ll check = 1 ;
+    check = check << (n/2) ;
+    int ans1 = 0 , ans2 = total ;
+
+    for(int j=total;j>=0;j--)
+    {
+        if((dp[j]&check)!=0)
+        {
+            int temp1 = min(j,total-j) , temp2 = max(j,total-j) ;
+            if(temp2-temp1<ans2-ans1) ans1 = temp1 , ans2 = temp2 ;
+        }
+    }
+
+    cout << ans1 << ' ' << ans2 << endl ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    cin >> T ;
+    while( T-- )
+    {
+        cin >> n ;
+        for(int i=1;i<=n;i++) cin >> arr[i] ;
+
+        solve();
+        if(T!=0) cout << endl ;
+    }
+    return 0;
+}

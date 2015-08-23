@@ -1,0 +1,118 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12003 - Array Transformer
+    ALGORITHM : Square Root decomposition
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+struct Node
+{
+    int pos ;
+    ll value ;
+
+    bool operator < (const Node &A) const
+    {
+        return value < A.value ;
+    }
+}Arr[300000+10];
+
+const int block = 600 ;
+int n , m ;
+ll  u , res[300000+10] , arr[300000+10] ;
+
+int query(int L,int R,ll v)
+{
+    int ans = 0 ;
+    int block_num = L/block ;
+
+    for(int i=block_num*block;i<=block_num*block+block-1;i++)
+    {
+        if(Arr[i].pos>=L&&Arr[i].pos<=R&&Arr[i].value<v) ans++;
+    }
+
+    for(int i=block_num+1;i<R/block;i++)
+    {
+        int k = lower_bound(&Arr[i*block],&Arr[i*block+block],Node{-1,v})-&Arr[i*block];
+        ans+=k;
+    }
+
+    if(L/block!=R/block)
+    {
+        block_num = R/block ;
+
+        for(int i=block_num*block;i<=block_num*block+block-1;i++)
+        {
+            if(Arr[i].pos>=L&&Arr[i].pos<=R&&Arr[i].value<v) ans++;
+        }
+    }
+
+    return ans ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    while( scanf("%d%d%lld",&n,&m,&u)==3 )
+    {
+        for(int i=0;i<=300000;i++) Arr[i].pos = -1 ;
+
+        for(int i=0;i<n;i++)
+        {
+            scanf("%lld",&Arr[i].value) ;
+            arr[i] = Arr[i].value;
+            Arr[i].pos = i ;
+        }
+
+        for(int i=0;i<n;i+=block) sort(&Arr[i],&Arr[min(n,i+block)]);
+
+        while( m-- )
+        {
+            int L , R , p ;
+            ll v ;
+            scanf("%d%d%lld%d",&L,&R,&v,&p);
+            L--;R--;p--;
+
+            int k = query(L,R,v) ;
+
+            int block_num = p/block ;
+            for(int i=block_num*block;;i++)
+            {
+                if(Arr[i].pos==p)
+                {
+                    Arr[i].value = u*(ll)k/(ll)(R-L+1) ;
+                    sort(&Arr[block_num*block],&Arr[min(n,block_num*block+block)]);
+                    break ;
+                }
+            }
+        }
+
+        for(int i=0;i<n;i++) res[Arr[i].pos] = Arr[i].value ;
+
+        for(int i=0;i<n;i++) printf("%lld\n",res[i]);
+    }
+
+    return 0;
+}

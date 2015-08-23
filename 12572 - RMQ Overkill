@@ -1,0 +1,75 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12572 - RMQ Overkill
+    ALGORITHM : Histogram
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int N ;
+char input[100000+10];
+int arr[100000+10] , L[1000000+10] , R[1000000+10] , St[1000000+10] ;
+ll mod = 1000000007 ;
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout)
+    while( scanf("%d",&N)==1 )
+    {
+        scanf("%s",&input);
+        for(int i=0;i<N;i++) arr[i+1] = input[i]-'0';
+
+        int point = 0 ;
+        for(int i=1;i<=N;i++)
+        {
+            while(point!=0&&arr[i]<=arr[St[point]]) point--;
+            if(point==0) L[i] = 1 ;
+            else L[i] = St[point]+1 ;
+            point++;
+            St[point]=i;
+        }
+
+        point = 0 ;
+        for(int i=N;i>=1;i--)
+        {
+            while(point!=0&&arr[i]<arr[St[point]]) point-- ;
+            if(point==0) R[i] = N ;
+            else R[i] = St[point]-1 ;
+            point++;
+            St[point] = i ;
+        }
+
+        ll ans = 0 ;
+        for(int i=1;i<=N;i++)
+        {
+            ll mn = i - L[i]+1 , mx = R[i] - i+1 ;
+            ll s = arr[i]*mx*mn;
+            ans = (ans+s)%mod;
+        }
+
+        cout << ans << endl ;
+    }
+    return 0;
+}

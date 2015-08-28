@@ -1,0 +1,100 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 1223 - Editor
+    ALGORITHM : String Processing
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+#define mx 100000
+struct info
+{
+    int tup[2] , index ;
+    bool operator < (const info &A) const
+    {
+        return tup[0] == A.tup[0] ? tup[1] < A.tup[1] : tup[0] < A.tup[0] ;
+    }
+}SA[mx+10];
+char input[mx+10] ;
+int lcp[mx+10] , R[25][mx+10] , step ;
+void suffixSort()
+{
+    int N = strlen(input);
+    memset(R,-1,sizeof(R));
+    for(int i=0;i<N;i++) R[0][i] = input[i] ;
+    step=1;
+    for(int jump=1;jump<=N;jump<<=1,step++)
+    {
+        for(int j=0;j<N;j++)
+        {
+            SA[j].index = j ;
+            SA[j].tup[0] = R[step-1][j] ;
+            SA[j].tup[1] = j+jump < N ? R[step-1][j+jump] : -1 ;
+        }
+        sort(SA,SA+N);
+        R[step][SA[0].index] = 1 ;
+        for(int j=1;j<N;j++)
+        {
+            R[step][SA[j].index] = SA[j].tup[0] == SA[j-1].tup[0] &&
+                SA[j].tup[1] == SA[j-1].tup[1] ? R[step][SA[j-1].index] : R[step][SA[j-1].index]+1 ;
+        }
+    }
+}
+
+void getlcp()
+{
+    int N = strlen(input);
+    lcp[0] = 0 ;
+    for(int i=1;i<N;i++)
+    {
+        lcp[i]=0;
+        int indexN = SA[i].index ;
+        int indexP = SA[i-1].index ;
+        for(int j=step-1;j>=0;j--)
+        {
+            if(R[j][indexP]==R[j][indexN])
+            {
+                lcp[i]+=(1<<j);
+                indexN+=(1<<j);
+                indexP+=(1<<j);
+            }
+        }
+    }
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    scanf("%d",&T);
+    while( T-- )
+    {
+        scanf("%s",&input);
+        suffixSort();
+        getlcp();
+        cout << *max_element(lcp,lcp+strlen(input)) << endl ;
+    }
+    return 0;
+}

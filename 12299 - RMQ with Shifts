@@ -1,0 +1,97 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12299 - RMQ with Shifts ( UVa )
+    ALGORITHM : Data Structure
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int N , Q , arr[100000+10] , tree[3*100000+10] , V[40] , sz ;
+char q[40];
+
+int conv()
+{
+    sz = 0 ;
+    int len = strlen(q);
+    for(int i=0;i<len;i++)
+    {
+        int s = 0 ;
+        while(isdigit(q[i])&&i<len) s = s*10 + q[i]-'0' , i++ ;
+        if(s) V[sz++] = s ;
+    }
+}
+
+int build(int node,int L,int R)
+{
+    if(L==R) return tree[node] = arr[L] ;
+    int mid = (L+R)/2;
+    return tree[node] = min(build(2*node,L,mid),build(2*node+1,mid+1,R));
+}
+
+int update(int node,int L,int R,int X,int val)
+{
+    if(L>X||R<X) return tree[node] ;
+    if(L==R&&L==X) return tree[node] = val ;
+    int mid = (L+R)/2;
+    return tree[node] = min(update(2*node,L,mid,X,val),update(2*node+1,mid+1,R,X,val));
+}
+
+int query(int node,int L,int R,int x,int y)
+{
+    if(L>y||R<x) return INF ;
+    if(L>=x&&R<=y) return tree[node];
+    int mid = (L+R)/2;
+    return min(query(2*node,L,mid,x,y),query(2*node+1,mid+1,R,x,y));
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    scanf("%d%d",&N,&Q);
+    for(int i=1;i<=N;i++) scanf("%d",&arr[i]);
+    build(1,1,N) ;
+    while( Q-- )
+    {
+        scanf("%s",&q);
+        conv();
+        if(q[0]=='q')
+        {
+            printf("%d\n",query(1,1,N,V[0],V[1]));
+        }
+        else
+        {
+            int t = arr[V[0]];
+            for(int i=0;i<sz;i++)
+            {
+                int x = V[i] ;
+                int y = V[(i+1)%sz];
+                arr[x] = arr[y] ;
+            }
+            arr[V[sz-1]] = t ;
+            for(int i=0;i<sz;i++) update(1,1,N,V[i],arr[V[i]]);
+        }
+    }
+    return 0;
+}

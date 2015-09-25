@@ -1,0 +1,69 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12473 - Common Palindrome ( UVa )
+    ALGORITHM : Dynamic Programming
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+char A[100] , B[100] ;
+int lenA , lenB , dp[61][61][61][61] ;
+
+int solve(int As,int Ae,int Bs,int Be)
+{
+    if(As>Ae||Bs>Be) return 0 ;
+
+    int &ret = dp[As][Ae][Bs][Be] ;
+    if(ret!=-1) return ret ;
+    ret = 0 ;
+
+    if(A[As]==A[Ae]&&B[Bs]==B[Be]&&B[Bs]==A[As])
+    {
+        if(As==Ae||Bs==Be) ret = 1+solve(As+1,Ae-1,Bs+1,Be-1);
+        else ret = 2+solve(As+1,Ae-1,Bs+1,Be-1);
+    }
+
+    ret = max(ret,solve(As+1,Ae,Bs,Be));
+    ret = max(ret,solve(As,Ae-1,Bs,Be));
+    ret = max(ret,solve(As,Ae,Bs+1,Be));
+    ret = max(ret,solve(As,Ae,Bs,Be-1));
+
+    return ret ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    scanf("%d",&T);
+    for(int cas=1;cas<=T;cas++)
+    {
+        scanf("%s%s",&A,&B);
+        lenA = strlen(A) ; lenB = strlen(B);
+        memo(dp,-1);
+        printf("Case %d: %d\n",cas,solve(0,lenA-1,0,lenB-1));
+    }
+    return 0;
+}

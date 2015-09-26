@@ -1,0 +1,252 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12424 - Answering Queries on a Tree ( UVa )
+    ALGORITHM : Heavy Light Decomposition
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int N , Q , dep[100000+10] , subTree[100000+10] , P[100000+10][25] , tree[11][3*100000+10] , C[100000+10] ;
+int chainNo , ptr , chainHead[100000+10] , chainNumber[100000+10] , chainPos[100000+10] , chainC[100000+10];
+vector <int> graph[100000+10] ;
+
+// Segment Tree part
+int build_tree(int node,int lo,int hi,int c)
+{
+    if(lo==hi) return chainC[lo] == c ? tree[c][node] = 1 : tree[c][node] = 0 ;
+    int mid = (lo+hi)/2;
+    int x = build_tree(2*node,lo,mid,c);
+    int y = build_tree(2*node+1,mid+1,hi,c);
+    return tree[c][node] = x+y ;
+}
+
+int update_tree(int node,int lo,int hi,int X,int c)
+{
+    if(lo>X||hi<X) return tree[c][node];
+    if(lo==X&&hi==X) return chainC[lo] == c ? tree[c][node] = 1 : tree[c][node] = 0 ;
+    int mid = (lo+hi)/2;
+    int x = update_tree(2*node,lo,mid,X,c);
+    int y = update_tree(2*node+1,mid+1,hi,X,c);
+    return tree[c][node] = x+y ;
+}
+
+int query_tree(int node,int lo,int hi,int L,int R,int c)
+{
+    if(L>hi||R<lo) return 0;
+    if(lo>=L&&hi<=R) return tree[c][node] ;
+    int mid = (lo+hi)/2;
+    int x = query_tree(2*node,lo,mid,L,R,c);
+    int y = query_tree(2*node+1,mid+1,hi,L,R,c);
+    return x+y;
+}
+
+// Finding chain and query for each chain
+int queryUp(int u,int v,int c)
+{
+    int chainU , chainV = chainNumber[v] , ans = 0 ;
+    while(true)
+    {
+        chainU = chainNumber[u] ;
+        if(chainU==chainV)
+        {
+            ans=ans+query_tree(1,1,N,chainPos[v],chainPos[u],c);
+            break ;
+        }
+        else
+        {
+            int head = chainHead[chainU];
+            ans=ans+query_tree(1,1,N,chainPos[head],chainPos[u],c);
+            u=P[head][0];
+        }
+    }
+    return ans ;
+}
+
+// Lowest Common Ancestor part .
+int query_lca(int p,int q)
+{
+    int t , log = 0 , next = 0 ;
+    if(dep[p]<dep[q]) t = p , p = q , q = t ;
+    while( true )
+    {
+        if((1<<next)>dep[p]) break ;
+        log = next ;
+        next++;
+    }
+
+    for(int i=log;i>=0;i--) if(dep[p]-(1<<i)>=dep[q]) p = P[p][i] ;
+
+    if(p==q) return p ;
+
+    for(int i=log;i>=0;i--)
+    {
+        if(P[p][i]!=-1&&P[p][i]!=P[q][i])
+        {
+            p = P[p][i] ;
+            q = P[q][i] ;
+        }
+    }
+
+    return P[p][0] ;
+}
+
+int query(int u , int v)
+{
+    int c = query_lca(u,v);
+    int mx = -1 ;
+    for(int i=1;i<=10;i++)
+    {
+        int t = 0 ;
+        if(u==c)
+        {
+            t = queryUp(v,c,i) ;
+        }
+        else if(v==c)
+        {
+            t = queryUp(u,c,i) ;
+        }
+        else
+        {
+            t = queryUp(u,c,i) ;
+            t+=queryUp(v,c,i) ;
+            if(C[c]==i) t--;
+        }
+        if(mx<t) mx = t ;
+    }
+    return mx;
+}
+
+// Heavy Light Decomposition
+void HLD(int u,int prev,int color)
+{
+    if(chainHead[chainNo]==-1) chainHead[chainNo] = u ;
+    chainNumber[u] = chainNo ;
+    chainC[ptr] = color ;
+    chainPos[u] = ptr ;
+    ptr++;
+
+    int sc =-1;
+    for(int i=0;i<graph[u].size();i++)
+    {
+        int v = graph[u][i];
+        if(v==prev) continue ;
+        if(sc==-1||subTree[sc]<subTree[v]) sc = v;
+    }
+
+    if(sc!=-1) HLD(sc,u,C[sc]);
+
+    for(int i=0;i<graph[u].size();i++)
+    {
+        int v = graph[u][i];
+        if(v==prev||v==sc) continue ;
+        chainNo++;
+        HLD(v,u,C[v]);
+    }
+}
+
+// dfs function to calculate every node's parent , depth , subtree size .
+void dfs(int u,int prev,int _dep)
+{
+    dep[u] = _dep ;
+    P[u][0] = prev ;
+    subTree[u]=1;
+    for(int i=0;i<graph[u].size();i++)
+    {
+        int v = graph[u][i] ;
+        if(v==prev) continue ;
+        dfs(v,u,_dep+1);
+        subTree[u]+=subTree[v];
+    }
+}
+
+// Reset all the containers .
+void Reset()
+{
+    chainNo = 1 ;
+    ptr = 1 ;
+    for(int i=0;i<=100000;i++)
+    {
+        graph[i].clear();
+        subTree[i] = 0 ;
+        chainHead[i]=-1;
+        for(int j=0;j<=20;j++) P[i][j]=-1;
+    }
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int test ; // Number of test cases .
+    scanf("%d",&test);
+    while( test-- )
+    {
+        Reset();
+        scanf("%d%d",&N,&Q);
+        for(int i=1;i<=N;i++) scanf("%d",&C[i]);
+
+        for(int i=1;i<N;i++)
+        {
+            int u , v ;
+            scanf("%d%d",&u,&v);
+            graph[u].push_back(v);
+            graph[v].push_back(u);
+        }
+
+        dfs(1,-1,0);
+        HLD(1,-1,C[1]);
+
+        for(int i=1;i<=20;i++)
+        {
+            for(int j=1;j<=N;j++)
+            {
+                if(P[j][i-1]!=-1) P[j][i] = P[P[j][i-1]][i-1];
+            }
+        }
+
+        for(int i=1;i<=10;i++) build_tree(1,1,N,i);
+
+        while( Q-- )
+        {
+            int t ;
+            scanf("%d",&t);
+            if( t==0 )
+            {
+                int u ,c  ;
+                scanf("%d%d",&u,&c);
+                chainC[chainPos[u]] = c ;
+                update_tree(1,1,N,chainPos[u],C[u]);
+                update_tree(1,1,N,chainPos[u],c);
+                C[u] = c ;
+            }
+            else
+            {
+                int u , v ;
+                scanf("%d%d",&u,&v);
+                printf("%d\n",query(u,v));
+            }
+        }
+    }
+    return 0;
+}

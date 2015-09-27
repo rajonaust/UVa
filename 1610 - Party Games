@@ -1,0 +1,111 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 1610 - Party Games ( UVa )
+    ALGORITHM : Greedy
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int N ;
+string arr[1000+10];
+
+string cmp(string A,string B)
+{
+    if(A.size()<B.size()) return A;
+    if(A.size()>B.size()) return B;
+    if(A<B) return A ;
+    return B ;
+}
+
+string smaller()
+{
+    string ans = "" ;
+    bool ok = false ;
+
+    for(int i=0;i<arr[N/2-1].size();i++)
+    {
+        if(ok)
+        {
+            if(arr[N/2-1][i]=='Z') ans = ans + arr[N/2-1][i] ;
+            else
+            {
+                char x = arr[N/2-1][i] + 1 ;
+                ans = ans + x ;
+                break ;
+            }
+        }
+        else if(arr[N/2-1][i]==arr[N/2][i]) ans = ans + arr[N/2-1][i] ;
+        else
+        {
+            ok = true ;
+            if(arr[N/2-1][i]+1==arr[N/2][i]) ans = ans + arr[N/2-1][i] ;
+            else
+            {
+                char x = arr[N/2-1][i] + 1 ;
+                ans = ans + x ;
+                break ;
+            }
+        }
+    }
+    if(ans.size()==arr[N/2-1].size()) ans = arr[N/2-1] ;
+
+    return ans ;
+}
+
+string bigger()
+{
+    string ans = "" ;
+
+    for(int i=0;i<arr[N/2].size();i++)
+    {
+        if(arr[N/2-1][i]==arr[N/2][i]) ans = ans + arr[N/2][i] ;
+        else
+        {
+            if(arr[N/2][i]-1==arr[N/2-1][i]) ans = ans + arr[N/2][i] ;
+            else
+            {
+                char x = arr[N/2][i] - 1 ;
+                ans = ans + x ;
+            }
+            break ;
+        }
+    }
+    if(ans==arr[N/2]) ans = "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" ;
+
+    return ans ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    while( cin >> N && N!=0 )
+    {
+        for(int i=0;i<N;i++) cin >> arr[i] ;
+
+        sort(arr,arr+N);
+        cout << cmp(smaller(),bigger()) << endl ;
+    }
+    return 0;
+}

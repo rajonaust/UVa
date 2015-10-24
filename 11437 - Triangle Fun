@@ -1,0 +1,91 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 11437 - Triangle Fun ( UVa )
+    ALGORITHM : Geometry
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+struct Point
+{
+    double x ,y ;
+};
+
+void input( Point &A )
+{
+    scanf("%lf%lf",&A.x,&A.y);
+}
+
+Point get(Point A,Point B)
+{
+    Point ret ;
+    ret.x = (A.x-B.x)/3.0+B.x;
+    ret.y = (A.y-B.y)/3.0+B.y;
+
+    return ret ;
+}
+
+Point find(Point x1,Point y1,Point x2,Point y2)
+{
+    Point ret ;
+
+    double A1 = y1.y-x1.y , B1 = x1.x-y1.x , C1 = A1*x1.x+B1*x1.y ; // A1*x + B1*y = C1 ;
+    double A2 = y2.y-x2.y , B2 = x2.x-y2.x , C2 = A2*x2.x+B2*x2.y ; // A2*x + B2*y = C2 ;
+
+    double det = A1*B2 - A2*B1 ;
+
+    ret.x = (B2*C1-B1*C2)/det ;
+    ret.y = (A1*C2-A2*C1)/det ;
+
+    return ret ;
+}
+
+double area (Point A , Point B , Point C)
+{
+    return fabs(A.x*(B.y-C.y) + B.x*(C.y-A.y) + C.x*(A.y-B.y))/2.0 ;
+}
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    scanf("%d",&T);
+    while( T-- )
+    {
+        Point A , B , C ;
+        input(A);input(B);input(C);
+
+        Point D = get(C,B);
+        Point E = get(A,C);
+        Point F = get(B,A);
+
+        Point P = find(A,D,B,E);
+        Point Q = find(C,F,B,E);
+        Point R = find(A,D,C,F);
+
+        cout << setprecision(0) << fixed << area(P,Q,R) << endl ;
+    }
+    return 0;
+}

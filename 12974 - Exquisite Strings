@@ -1,0 +1,208 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12974 - Exquisite Strings ( UVa )
+    ALGORITHM : Suffix array
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define GetI() (SA12[t] < n0 ? SA12[t] * 3 + 1 : (SA12[t] - n0) * 3 + 2)
+#define mx 100000
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+char T[mx+10] ;
+int c[mx+10] , R[mx+10] ,  SA[mx+10] , lcp[mx+10] , s[mx+10] , n , k ;
+const long long mod = 1000000000+7;
+
+inline bool leq(int a1, int a2, int b1, int b2)
+{
+    return(a1 < b1 || (a1 == b1 && a2 <= b2));
+}
+inline bool leq(int a1, int a2, int a3, int b1, int b2, int b3)
+{
+    return(a1 < b1 || (a1 == b1 && leq(a2,a3, b2,b3)));
+}
+
+void radixPass(int* a, int* b, int* r, int n, int K)
+{
+        int i, sum, t;
+        for(i = 0;  i <= K;  i++) c[i] = 0;
+        for(i = 0;  i < n;  i++) c[r[a[i]]]++;
+        for(i = 0, sum = 0;  i <= K;  i++)
+        {
+            t = c[i];
+            c[i] = sum;
+            sum += t;
+        }
+        for(i = 0;  i < n;  i++) b[c[r[a[i]]]++] = a[i];
+}
+
+void suffixSort(int* s, int* SA, int n, int K)
+{
+    int n0 = (n+2)/3, n1 = (n+1)/3, n2 = n/3, n02 = n0+n2;
+    int* s12 = new int[n02 + 3];
+    int* SA12 = new int[n02 + 3];
+    int* s0 = new int[n0];
+    int* SA0 = new int[n0];
+    int i, j, name, c0, c1, c2, p, t, k;
+
+    s12[n02] = s12[n02+1] = s12[n02+2] = 0;
+    SA12[n02] = SA12[n02+1] = SA12[n02+2] = 0;
+
+    for(i=0, j=0; i < n+(n0-n1); i++) if(i%3 != 0) s12[j++] = i;
+    radixPass(s12, SA12, s+2, n02, K);
+    radixPass(SA12, s12, s+1, n02, K);
+    radixPass(s12, SA12, s, n02, K);
+
+    name = 0, c0 = -1, c1 = -1, c2 = -1;
+
+    for(i = 0; i < n02; i++)
+    {
+        if(s[SA12[i]] != c0 || s[SA12[i]+1] != c1 || s[SA12[i]+2] != c2)
+        {
+            name++;
+            c0 = s[SA12[i]];
+            c1 = s[SA12[i]+1];
+            c2 = s[SA12[i]+2];
+        }
+        if(SA12[i] % 3 == 1)
+        {
+            s12[SA12[i]/3] = name;
+        }
+        else
+        {
+            s12[SA12[i]/3 + n0] = name;
+        }
+    }
+
+
+    if(name < n02)
+    {
+        suffixSort(s12, SA12, n02, name);
+        for(i = 0; i < n02; i++) s12[SA12[i]] = i + 1;
+    }
+    else
+    {
+        for(i = 0; i < n02; i++) SA12[s12[i] - 1] = i;
+    }
+
+    for(i=0, j=0; i < n02; i++) if(SA12[i] < n0) s0[j++] = 3*SA12[i];
+    radixPass(s0, SA0, s, n0, K);
+
+    for(p=0, t=n0-n1, k=0; k < n; k++)
+    {
+        i = GetI();
+        j = SA0[p];
+        if(SA12[t] < n0 ? leq(s[i], s12[SA12[t] + n0], s[j], s12[j/3]) : leq(s[i], s[i+1], s12[SA12[t]-n0+1], s[j], s[j+1], s12[j/3+n0]))
+        {
+            SA[k] = i; t++;
+            if(t == n02) for(k++; p < n0; p++, k++) SA[k] = SA0[p];
+        }
+        else
+        {
+            SA[k] = j; p++;
+            if(p == n0) for(k++; t < n02; t++, k++) SA[k] = GetI();
+        }
+    }
+
+    delete[] s12; delete[] SA12; delete[] SA0; delete[] s0;
+}
+void getlcp (int n)
+{
+    for (int i = 0; i < n; ++i) c[SA[i]] = i;
+    lcp[0] = 0;
+
+    for (int i = 0, h = 0; i < n; ++i)
+    {
+        if (c[i] > 0)
+        {
+            int j = SA[c[i] - 1];
+            while (i + h < n && j + h < n && T[i + h] == T[j + h]) h++;
+
+            lcp[c[i]] = h;
+            if (h > 0) h--;
+        }
+    }
+}
+
+long long f(long long n)
+{
+    long long j = n*(n+1);
+    j/=2;
+    return j%mod ;
+}
+
+long long SuffixArray ()
+{
+    int m, i;
+    m = -1;
+    n = strlen(T);
+    for (i = 0; T[i]; i++)
+    {
+        s[i] = T[i];
+        m = m > T[i] ? m : T[i];
+    }
+    for (i = n; i < n + 3; i++) SA[i] = s[i] = 0;
+
+    suffixSort(s, SA, n, m);
+
+    getlcp(n);
+
+    long long ans = 0 , so_far = 0  ;
+
+    for(int i=0;i<n;i++)
+    {
+        long long len = n - SA[i] ;
+        if(len<k)
+        {
+            so_far = 0 ;
+        }
+        else if(so_far==0||lcp[i]<k)
+        {
+            so_far = len-k+1;
+            ans = (ans+f(len-k))%mod;
+            ans = (ans+mod)%mod;
+        }
+        else if(lcp[i]>=k)
+        {
+            long long temp = len-k+1;
+            ans = (ans+(so_far*temp)%mod)%mod;
+            ans = (ans+f(len-k))%mod;
+            ans = (ans+mod)%mod;
+            so_far+=len-k+1;
+        }
+    }
+    return ans ;
+}
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int t ;
+    scanf("%d",&t);
+    for(int cas=1;cas<=t;cas++)
+    {
+        scanf("%s%d",&T,&k);
+        printf("Case #%d: %lld\n",cas,SuffixArray()%mod);
+    }
+}

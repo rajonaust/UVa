@@ -1,0 +1,54 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12970 - Alcoholic Pilots ( UVa )
+    ALGORITHM : Math
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    ll v1 , d1 , v2 , d2 , cas = 1 ;
+    while(scanf("%lld%lld%lld%lld",&v1,&d1,&v2,&d2)==4)
+    {
+        if(v1==0&&d1==0&&v2==0&&d2==0) break ;
+
+        printf("Case #%d: ",cas++);
+        if(d1*v2<d2*v1) puts("You owe me a beer!");
+        else puts("No beer for the captain.");
+
+        printf("Avg. arrival time: ");
+
+        ll lo = (v1*v2)/__gcd(v1,v2);
+
+        ll hi = d1*(lo/v1)+d2*(lo/v2);
+        lo*=2;
+
+        if(hi%lo==0) printf("%lld\n",hi/lo);
+        else printf("%lld/%lld\n",hi/__gcd(hi,lo),lo/__gcd(hi,lo));
+    }
+    return 0;
+}

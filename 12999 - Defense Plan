@@ -1,0 +1,161 @@
+/*
+    Author : RAJON BARDHAN
+    AUST CSE 27th Batch
+    All my programming success are dedicated to my mom , dad , little sister madhobi , teachers , friends and love TANIA SULTANA RIMY
+
+    Problem Name : 12999 - Defense Plan ( UVa )
+    ALGORITHM : Geometry
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ff first
+#define ss second
+#define mp make_pair
+#define memo(a,b) memset(a,b,sizeof(a))
+#define INF 1e9
+#define EPS 1e-8
+#define PI 3.14159265358979323846
+
+typedef long long ll ;
+typedef unsigned long long ull ;
+
+/* int dx[] = {1,-1,0,0} , dy[] = {0,0,1,-1}; */ // 4 Direction
+/* int dx[] = {1,-1,0,0,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1,1,-1}; */ // 8 Direction
+/* int dx[] = {1,-1,1,-1,2,2,-2,-2} , dy[] = {2,2,-2,-2,1,-1,1,-1}; */ // Knight Direction
+/* int dx[] = {2,-2,1,1,-1,-1} , dy[] = {0,0,1,-1,1,-1}; */ // Hexagonal Direction
+struct Point
+{
+    long long x , y ;
+};
+Point arr[100+10] , ans[100+10] ;
+int P , K , cnt ;
+stack <Point> S ;
+double dp[111][111][111];
+bool visit[111][111][111];
+double polygonArea(vector<Point>list)
+{
+    double area = 0 ;
+    for(int i=1;i+1<list.size();i++)
+        area+=(list[i].y-list[0].y)*(list[i+1].x-list[i].x)-(list[i].x-list[0].x)*(list[i+1].y-list[i].y);
+    return fabs(area/2.0);
+}
+long long dist(Point P,Point Q)
+{
+    return (P.x-Q.x)*(P.x-Q.x)+(P.y-Q.y)*(P.y-Q.y) ;
+}
+int orientation(Point P,Point Q,Point R)
+{
+    long long ret = (Q.y-P.y)*(R.x-Q.x) - (Q.x-P.x)*(R.y-Q.y) ;
+    if(ret<0) return 2;
+    if(ret>0) return 1;
+    return ret ;
+}
+bool cmp(Point X , Point Y)
+{
+    int ret = orientation(arr[0],X,Y);
+    if(ret==0)
+    {
+        long long dist1 = dist(arr[0],X);
+        long long dist2 = dist(arr[0],Y);
+        return dist1 < dist2 ;
+    }
+    else if(ret==2) return true ;
+    else return false ;
+}
+Point nextToTop()
+{
+    Point P = S.top();
+    S.pop();
+    Point res = S.top();
+    S.push(P);
+    return res ;
+}
+double solve(int index,int first,int prev,int how)
+{
+    if(index<0) return 0.0 ;
+    if(how==0) return 0.0 ;
+
+    if(visit[index][prev][how]) return dp[index][prev][how];
+    visit[index][prev][how] = true ;
+    double &ret = dp[index][prev][how] ;
+    ret = 0.0 ;
+
+    vector <Point> V {ans[first],ans[prev],ans[index]};
+    ret = max(ret,polygonArea(V)+solve(index-1,first,index,how-1));
+
+    ret = max(ret,solve(index-1,first,prev,how));
+
+    return ret ;
+
+
+}
+
+double convexHull(int N)
+{
+    int ymin = arr[0].y , index = 0 ;
+    for(int i=1;i<N;i++)
+    {
+        if(arr[i].y<ymin||(arr[i].y==ymin&&arr[i].x<arr[index].x))
+        {
+            ymin = arr[i].y ;
+            index = i ;
+        }
+    }
+
+    swap(arr[0],arr[index]);
+    sort(&arr[1],&arr[N],cmp);
+
+    S.push(arr[0]);
+    for(int i=1;i<N;i++)
+    {
+        while(S.size()>1&&orientation(nextToTop(),S.top(),arr[i])!=2) S.pop();
+        S.push(arr[i]);
+    }
+
+    cnt = 0 ;
+    while(!S.empty())
+    {
+        ans[cnt++]=S.top() ;
+        S.pop();
+    }
+
+    if(cnt<=K)
+    {
+        vector <Point> V ;
+        for(int i=cnt-1;i>=0;i--) V.push_back(ans[i]);
+        return polygonArea(V);
+    }
+
+    double ans = 0.0 ;
+
+    for(int i=cnt-1;i>=0;i--)
+    {
+        memo(visit,false);
+        ans=max(ans,solve(i-1,i,i,K-1)) ;
+    }
+
+    return ans ;
+}
+
+
+
+int main()
+{
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    int T ;
+    cin >> T ;
+    for(int cas=1;cas<=T;cas++)
+    {
+        cin >> P >> K ;
+        for(int i=0;i<P;i++)
+        {
+            cin >> arr[i].x >> arr[i].y ;
+        }
+        cout << "Case " << cas << ": " << setprecision(3) << fixed << convexHull(P) << endl ;
+    }
+    return 0;
+}
